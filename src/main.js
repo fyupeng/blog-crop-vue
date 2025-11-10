@@ -77,7 +77,7 @@ Vue.prototype.$video = Video
 
 
 //设置Vue原型属性
-Vue.prototype.remoteUrl = 'http://localhost:8081'; // 这是拿静态资源的后端接口地址（springboot做了url映射处理）
+Vue.prototype.remoteUrl = 'https://www.fyupeng.cn:9090'; // 这是拿静态资源的后端接口地址（springboot做了url映射处理）
 Vue.prototype.remoteDataDir = '/distributed-blog-data/';
 //axios拦截器，在发起请求之前执行
 

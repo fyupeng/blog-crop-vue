@@ -6,12 +6,11 @@ let loadingCount = 0;
 let loading;
 
 function startLoading() {
-  if (loadingCount === 0) {
+	console.log(loadingCount);
     loading = Toast.loading({
-      duration: 500, // 持续展示 toast
+      duration: 0, // 持续展示 toast
       forbidClick: true,
     });
-  }
   loadingCount++;
 }
 
@@ -23,7 +22,7 @@ function stopLoading() {
 }
 
 export function request(config) {
-  let to=10000;
+  let to=20000;
   if(config.timeout){
     to=config.timeout
   }
@@ -41,7 +40,7 @@ export function request(config) {
         if (localStorage.getItem('token') != undefined && localStorage.getItem('token') != null &&
             localStorage.getItem('userId') != undefined && localStorage.getItem('userId') != null &&
             localStorage.getItem('timestamp') != undefined && localStorage.getItem('timestamp') != null &&
-            new Date() - localStorage.getItem('timestamp') > 30000) {
+            new Date() - localStorage.getItem('timestamp') > 3600000) {
             // 更新 token 时间
             axios({
                 method: "post",
@@ -82,7 +81,13 @@ export function request(config) {
                         message: "未知错误",
                       });
                     }
-                  }
+                  } else {
+					  Toast.fail({
+                        duration: 2000,
+                        closeOnClick:true,
+                        message: data.msg,
+                      });
+				  }
                 }).catch(error => {
                   var errRes = JSON.parse(JSON.stringify(error))
                   var code = errRes.code != undefined ? errRes.code : "";
@@ -137,6 +142,11 @@ export function request(config) {
       var code = errRes.code != undefined ? errRes.code : "";
       var status = errRes.status != undefined ? errRes.status : "";
       var message = errRes.message != undefined ? errRes.message : "";
+		Toast.fail({
+			duration: 2000,
+			closeOnClick:true,
+			message: message || "请求负载过大！",
+		});
       var uncaught = JSON.parse("{\"code\": \"" + code + "\", \"status\": \"" + status + "\", \"message\": \"" + message + "\"}");
       return Promise.reject(uncaught);
     }

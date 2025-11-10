@@ -187,7 +187,8 @@ export default {
         },
       })
         .then((res) => {
-          console.log(res)
+          console.log(res);
+		  console.log('111212112');
           if (res.status == 200) {
             this.$toast.clear();
             this.$toast.success("处理成功");
@@ -195,7 +196,10 @@ export default {
           } else if (res.status == 500) {
             this.$toast.clear();
             this.$toast.success(res.msg);
-          }
+          } else {
+		   this.$toast.clear();
+            this.$toast(res.msg);
+		}
         })
     },
     savePicture(action, done) {

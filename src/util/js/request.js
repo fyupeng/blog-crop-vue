@@ -130,8 +130,10 @@ export function request(config) {
           Toast.fail({
             duration: 2000,
             closeOnClick:true,
-            message: data.msg || "令牌异常",
+            message: "令牌失效",
           });
+		  localStorage.removeItem("token");
+          return Promise.reject('令牌失效');
         }
       }
       return data;

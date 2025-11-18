@@ -153,6 +153,13 @@
         </div>
 
         <div class="footer">
+		
+		<!-- 访问量 -->
+		<div class="visit-line">
+		年访问量：<span>{{ yearVisitCount }}</span> 次 <br>
+		当月访问量：<span>{{ yearMonthVisitCount }}</span> 次
+		</div>
+		
           <a href="mailto:fyp010311@163.com"
             >产品反馈请联系开发者:@fyp</a
           >
@@ -162,7 +169,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import "../assets/less/home.less";
 import { request } from "../util/js/request";
 export default {
@@ -183,9 +192,31 @@ export default {
       hotpotPage: 1,
       searchPage: 1,
       pageSize: 5,
+	 yearVisitCount: 0,
+	 yearMonthVisitCount: 0
     };
   },
-  created() {
+  async onMounted() {
+
+  },
+  async created() {
+  const [year, month] = new Date().toISOString().slice(0, 7).split('-')
+  console.log(year)
+  console.log(year + '-' + month)
+  try {
+      var data = await axios.get('/openresty/ipCount', {
+        params: { date: year + '-' + month }
+      });
+      this.yearMonthVisitCount = data.data.ipCount ?? 0
+	   data = await axios.get('/openresty/ipCount', {
+        params: { date: year }
+      })  
+      this.yearVisitCount = data.data.ipCount ?? 0
+    } catch (e) {
+      this.yearMonthVisitCount = -1
+	    this.yearVisitCount = -1
+    }
+
     var that = this;
     window.addEventListener("offline", function () {
       that.$router.push({ name: "netInterupt" });

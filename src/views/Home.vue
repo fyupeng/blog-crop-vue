@@ -156,8 +156,9 @@
 		
 		<!-- 访问量 -->
 		<div class="visit-line">
-		年访问量：<span>{{ yearVisitCount }}</span> 次 <br>
-		当月访问量：<span>{{ yearMonthVisitCount }}</span> 次
+		当前在线人数：<span class="online-ip-count">{{ onlineIpCount }}</span> 人 <br>
+		年访问量：<span class="year-visit-count">{{ yearVisitCount }}</span> 次 <br>
+		当月访问量：<span class="year-month-visit-count">{{ yearMonthVisitCount }}</span> 次
 		</div>
 		
           <a href="mailto:fyp010311@163.com"
@@ -168,12 +169,12 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import "../assets/less/home.less";
 import { request } from "../util/js/request";
+import { io } from 'socket.io-client'
 export default {
   data() {
     return {
@@ -192,30 +193,49 @@ export default {
       hotpotPage: 1,
       searchPage: 1,
       pageSize: 5,
-	 yearVisitCount: 0,
-	 yearMonthVisitCount: 0
+	  onlineIpCount: 0,
+	  yearVisitCount: 0,
+	  yearMonthVisitCount: 0
     };
   },
   async onMounted() {
 
   },
   async created() {
-  const [year, month] = new Date().toISOString().slice(0, 7).split('-')
-  console.log(year)
-  console.log(year + '-' + month)
-  try {
-      var data = await axios.get('/openresty/ipCount', {
-        params: { date: year + '-' + month }
-      });
-      this.yearMonthVisitCount = data.data.ipCount ?? 0
-	   data = await axios.get('/openresty/ipCount', {
-        params: { date: year }
-      })  
-      this.yearVisitCount = data.data.ipCount ?? 0
-    } catch (e) {
-      this.yearMonthVisitCount = -1
-	    this.yearVisitCount = -1
-    }
+  
+	// 定义一个函数来封装你的逻辑
+	  const fetchData = async () => {
+		try {
+		  // 发送 POST 请求获取在线 IP 数量
+		  const onlineIpCountData = await axios.post("/blogApi/user/getOnlineIpCount",{});
+		  this.onlineIpCount = onlineIpCountData.data.data ?? 0;
+
+		  // 获取当前年份和月份
+		  const [year, month] = new Date().toISOString().slice(0, 7).split("-");
+
+		  // 发送 GET 请求获取月访问量
+		  const monthData = await axios.get("/openresty/ipCount", {
+			params: { date: year + "-" + month },
+		  });
+		  this.yearMonthVisitCount = monthData.data.ipCount ?? 0;
+
+		  // 发送 GET 请求获取年访问量
+		  const yearData = await axios.get("/openresty/ipCount", {
+			params: { date: year },
+		  });
+		  this.yearVisitCount = yearData.data.ipCount ?? 0;
+		} catch (e) {
+		  console.error(e);
+		  this.yearMonthVisitCount = -1;
+		  this.yearVisitCount = -1;
+		}
+	  };
+
+	  // 调用一次 fetchData 函数
+	  fetchData();
+
+	  // 每10秒调用一次 fetchData 函数
+	  setInterval(fetchData, 10000);
 
     var that = this;
     window.addEventListener("offline", function () {
@@ -300,7 +320,7 @@ export default {
         .then((res) => {
           if (res.status == 200) {
             this.$toast.clear();
-            if(res.data == null || res.data.rows.length == 0) {
+            if(res.data == null || res.data.rows == null || res.data.rows.length == 0) {
               return;
             }
             let rows = res.data.rows;
@@ -327,7 +347,7 @@ export default {
         .then((res) => {
           if (res.status == 200) {
             this.$toast.clear();
-            if(res.data == null || res.data.rows.length == 0) {
+            if(res.data == null || res.data.rows == null || res.data.rows.length == 0) {
               return;
             }
             let rows = res.data.rows;
@@ -351,7 +371,7 @@ export default {
         .then((res) => {
           if (res.status == 200) {
             this.$toast.clear();
-            if(res.data == null || res.data.rows.length == 0) {
+            if(res.data == null || res.data.rows == null || res.data.rows.length == 0) {
               return;
             }
             let rows = res.data.rows;

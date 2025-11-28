@@ -21,6 +21,8 @@
     "node-polyfill-webpack-plugin": "^1.1.4",
     "node-sass": "^7.0.1",
     "nvm": "0.0.4",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "vant": "^2.12.47",
     "video.js": "^7.18.1",
     "vue": "^2.6.14",
